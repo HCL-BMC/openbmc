@@ -1,0 +1,181 @@
+From c13b00849e28a8305b51aa8abfd5894107067357 Mon Sep 17 00:00:00 2001
+From: manikandan elumalai <manikandan.e@hcl.com>
+Date: Wed, 30 Oct 2019 22:25:24 +0530
+Subject: [PATCH] kernel
+
+---
+ .../boot/dts/aspeed-bmc-facebook-yosemitev2.dts    | 162 +++++++++++++++++++++
+ 1 file changed, 162 insertions(+)
+ create mode 100644 arch/arm/boot/dts/aspeed-bmc-facebook-yosemitev2.dts
+
+diff --git a/arch/arm/boot/dts/aspeed-bmc-facebook-yosemitev2.dts b/arch/arm/boot/dts/aspeed-bmc-facebook-yosemitev2.dts
+new file mode 100644
+index 0000000..90db01f
+--- /dev/null
++++ b/arch/arm/boot/dts/aspeed-bmc-facebook-yosemitev2.dts
+@@ -0,0 +1,162 @@
++// SPDX-License-Identifier: GPL-2.0+
++// Copyright (c) 2018 Facebook Inc.
++// Author: 
++/dts-v1/;
++
++#include "aspeed-g5.dtsi"
++#include <dt-bindings/gpio/aspeed-gpio.h>
++
++/ {
++	model = "Facebook Yosemitev2 BMC";
++	compatible = "facebook,yosemitev2-bmc", "aspeed,ast2500";
++	aliases {
++		serial0 = &uart1;
++		serial4 = &uart5;
++	};
++	chosen {
++		stdout-path = &uart5;
++		bootargs = "console=ttyS4,115200 earlyprintk";
++	};
++
++	memory@80000000 {
++		reg = <0x80000000 0x20000000>;
++	};
++
++	iio-hwmon {
++		compatible = "iio-hwmon";
++		io-channels = <&adc 0> , <&adc 1> , <&adc 2> ,  <&adc 3> ,
++			      <&adc 4> , <&adc 5> , <&adc 6> ,  <&adc 7> ,
++                              <&adc 8> , <&adc 9> , <&adc 10>, <&adc 11> ,
++			      <&adc 12>, <&adc 13>, <&adc 14>, <&adc 15> ;
++	};
++};
++
++&fmc {
++	status = "okay";
++	flash@0 {
++		status = "okay";
++		m25p,fast-read;
++#include "openbmc-flash-layout.dtsi"
++	};
++};
++
++&spi1 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_spi1_default>;
++	flash@0 {
++		status = "okay";
++		m25p,fast-read;
++		label = "pnor";
++	};
++};
++
++&lpc_snoop {
++	status = "okay";
++	snoop-ports = <0x80>;
++};
++
++&lpc_ctrl {
++	// Enable lpc clock
++	status = "okay";
++};
++
++&vuart {
++	// VUART Host Console
++	status = "okay";
++};
++
++&uart1 {
++	// Host Console
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_txd1_default
++		     &pinctrl_rxd1_default>;
++};
++
++&uart2 {
++	// SoL Host Console
++	status = "okay";
++};
++
++&uart3 {
++	// SoL BMC Console
++	status = "okay";
++};
++
++&uart5 {
++	// BMC Console
++	status = "okay";
++};
++
++&kcs2 {
++	// BMC KCS channel 2
++	status = "okay";
++	kcs_addr = <0xca8>;
++};
++
++&kcs3 {
++	// BMC KCS channel 3
++	status = "okay";
++	kcs_addr = <0xca2>;
++};
++
++&mac0 {
++	status = "okay";
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_rmii1_default>;
++	use-ncsi;
++};
++
++&adc {
++	status = "okay";
++};
++
++
++&i2c8 {
++	status = "okay";
++       	eeprom@51 {
++		compatible = "atmel,24c64";
++		reg = <0x51>;
++		pagesize = <32>;
++	};
++};
++
++&i2c9 {
++	status = "okay";
++	tmp421@4e {
++		compatible = "ti,tmp421";
++		reg = <0x4e>;
++	};
++	tmp421@4f {
++		compatible = "ti,tmp421";
++		reg = <0x4f>;
++	};
++       
++};
++
++&i2c10 {
++	status = "okay";
++	adm1278@40 {
++		compatible = "adi,adm1278";
++		reg = <0x40>;
++	};
++	
++       
++};
++
++
++&pwm_tacho {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_pwm0_default &pinctrl_pwm1_default>;
++	fan@0 {
++		reg = <0x00>;
++		aspeed,fan-tach-ch = /bits/ 8 <0x00>;
++	};
++
++	fan@1 {
++		reg = <0x01>;
++		aspeed,fan-tach-ch = /bits/ 8 <0x02>;
++	};
++};
+-- 
+2.7.4
+
